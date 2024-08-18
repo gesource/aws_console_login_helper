@@ -49,7 +49,7 @@ const loginOAuthPage = async (account: Account) => {
         await inputCode(usernameInput, account.userName);
     }
     // パスワードを入力
-    const passwordInput = document.getElementById('password') as HTMLInputElement | null;
+    const passwordInput = document.getElementsByName('password')[0] as HTMLInputElement | null;
     if (passwordInput) {
         await inputCode(passwordInput, account.password);
     }

@@ -1,7 +1,7 @@
 {
   "name": "chome_aws_login_helper",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",

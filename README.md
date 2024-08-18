@@ -76,13 +76,13 @@ npm install
 開発用にビルドします。
 
 ```shell
-num run dev
+npm run dev
 ```
 
 本番用にビルドします。
 
 ```shell
-num run build
+npm run build
 ```
 
 ## インストール
