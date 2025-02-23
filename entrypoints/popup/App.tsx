@@ -1,10 +1,10 @@
 import './App.css'
-import {usePersist} from "./hooks/usePersist.ts";
-import Account from "./models/Account.ts";
-import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
+import {usePersist} from './hooks/usePersist.ts';
+import Account from './models/Account.ts';
+import {HashRouter as Router, Navigate, Route, Routes} from "react-router-dom";
 import MainPage from './pages/MainPage.tsx';
 import AddPage from './pages/AddPage.tsx';
-import Layout from "./common/Layout.tsx";
+import Layout from './common/Layout.tsx';
 import SettingPage from "./pages/SettingPage.tsx";
 
 function App() {
@@ -13,7 +13,7 @@ function App() {
 
     return (
         <>
-            <BrowserRouter>
+            <Router>
                 <Routes>
                     <Route path="/" element={<Layout/>}>
                         <Route index element={<Navigate to="/index.html"/>}/>
@@ -23,7 +23,7 @@ function App() {
                         <Route path="/setting" element={<SettingPage accounts={accounts} setAccounts={setAccounts}/>}/>
                     </Route>
                 </Routes>
-            </BrowserRouter>
+            </Router>
         </>
     )
 }
