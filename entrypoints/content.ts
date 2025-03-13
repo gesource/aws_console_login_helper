@@ -1,4 +1,5 @@
 import Account from './popup/models/Account';
+import awsConsolePage from './content/awsConsolePage';
 
 /**
  * 入力欄に値を設定し変更イベントを送信する
@@ -48,11 +49,18 @@ const loginOAuthPage = async (account: Account) => {
 // コンテンツスクリプトとして定義
 export default defineContentScript({
     matches: [
-      'https://*.signin.aws.amazon.com/oauth?*',
-      'https://signin.aws.amazon.com/signin*'
+        'https://*.signin.aws.amazon.com/oauth?*',
+        'https://signin.aws.amazon.com/signin*',
+        // AWSマネジメントコンソール
+        'https://*.console.aws.amazon.com/*',
     ],
     runAt: "document_idle",
     main() {
+        const consoleUrl = ".console.aws.amazon.com";
+        if (window.location.href.includes(consoleUrl)) {
+            awsConsolePage();
+        }
+
         chrome.runtime.onMessage.addListener(async (message: { account: Account }) => {
             const url = window.location.href;
             const signInUrl = "https://signin.aws.amazon.com/signin";

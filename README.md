@@ -11,7 +11,7 @@
 
 ## 使用技術
 
-* [WXT](https://wxt.dev/)
+* [CRXJS](https://crxjs.dev/vite-plugin/)
 * [Vite](https://vitejs.dev/)
 * [TypeScript](https://www.typescriptlang.org/)
 * [React](https://react.dev/)
@@ -85,14 +85,16 @@ npm run dev
 npm run build
 ```
 
-`.output/chrome-mv3`にファイル一式が出力されます。
-
 ## インストール
 
 ビルドが完了したら、ChromeまたはEdgeを起動して`chrome://extensions`を開きます。
 
-「デベロッパーモード」を有効にし、「パッケージ化されていない拡張機能を読み込む」ボタンから`.output/chrome-mv3`フォルダーを読み込みます。
+「デベロッパーモード」を有効にし、「パッケージ化されていない拡張機能を読み込む」ボタンからdistフォルダーを読み込みます。
 
 ![デベロッパーモード](./docs/images/extentions_developer_mode.png)
 
 ![拡張機能](./docs/images/extentions.png)
+
+## その他
+
+* AWSマネージメントコンソールのフッターにアカウント名を表示する機能は[Display AWS Account Name](https://chromewebstore.google.com/detail/display-aws-account-name/njalignmbnobepnkfolngjbclaomfjig)を参考にしました。

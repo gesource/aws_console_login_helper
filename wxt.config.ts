@@ -11,7 +11,8 @@ export default defineConfig({
     manifest_version: 3,
     permissions: [
       'tabs',
-      'activeTab'
+      'activeTab',
+      'storage',
     ],
     action: {
       default_popup: './popup/index.html',

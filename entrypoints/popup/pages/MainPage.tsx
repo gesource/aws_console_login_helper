@@ -145,6 +145,12 @@ function MainPage(accounts: MainPageProps) {
                             key={account.id}
                             divider={true}
                         >
+                            {/* アカウントの背景色を示すボックス */}
+                            <Box sx={{
+                                width: 16,
+                                height: 32,
+                                backgroundColor: account.backgroundColor,}}>
+                            </Box>
                             <ListItemButton>
                                 <ListItemText
                                     primary={account.name}
