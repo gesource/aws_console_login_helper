@@ -33,20 +33,15 @@ const awsConsolePage = () => {
 
     async function findAccount(accountId: string): Promise<Account | null> {
         const STORAGE_KEY = "accounts";
-    
-        return new Promise((resolve) => {
-            chrome.storage.local.get(STORAGE_KEY, (data) => {
-                const persistedValue = data[STORAGE_KEY];
-                if (!persistedValue) {
-                    resolve(null);
-                    return;
-                }
-    
-                const accounts: Account[] = JSON.parse(persistedValue);
-                const account = accounts.find((account) => account.id === accountId);
-                resolve(account || null);
-            });
-        });
+
+        const data = await browser.storage.local.get(STORAGE_KEY);
+        const persistedValue = data[STORAGE_KEY];
+        if (!persistedValue) {
+            return null;
+        }
+
+        const accounts: Account[] = JSON.parse(persistedValue);
+        return accounts.find((account) => account.id === accountId) || null;
     }
 
     function createAccountLabel(account: Account): HTMLElement {
@@ -64,6 +59,5 @@ const awsConsolePage = () => {
         return element;
     }
 };
-
 
 export default awsConsolePage;

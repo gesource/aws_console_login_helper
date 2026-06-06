@@ -6,7 +6,6 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import {AppBar, Button, IconButton, TextField, Toolbar, Typography} from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import background from "@/entrypoints/background";
 
 
 interface AddPageProps {
@@ -36,7 +35,7 @@ function AddPage(accounts: AddPageProps) {
         const newUserName = userName.current?.value || "";
         const newPassword = password.current?.value || "";
         const newBackgroundColor = backgroundColor.current?.value || "";
-        const newTextcolor = textColor.current?.value || "";
+        const newTextColor = textColor.current?.value || "";
 
         // 必須項目が入力されていることを確認する
         if (!newAccountName) {
@@ -53,18 +52,19 @@ function AddPage(accounts: AddPageProps) {
             return
         }
 
+        const newAccount = new Account(newAccountName, newAccountId, newUserName, newPassword, newBackgroundColor, newTextColor);
+
         // 新規作成のとき
         if (!targetAccountId) {
             console.log("新規作成");
-            const account = new Account(newAccountName, newAccountId, newUserName, newPassword, newBackgroundColor, newTextcolor);
-            accounts.setAccounts([...accounts.accounts, account]);
+            accounts.setAccounts([...accounts.accounts, newAccount]);
             goToMainPage();
             return;
         }
         // 変更のとき
         const newAccounts = accounts.accounts.map((account) => {
             if (account.id === targetAccountId) {
-                return new Account(newAccountName, newAccountId, newUserName, newPassword, newBackgroundColor, newTextcolor);
+                return newAccount;
             }
             return account;
         });
@@ -159,7 +159,7 @@ function AddPage(accounts: AddPageProps) {
                             <Grid item xs={12}>
                                 <TextField
                                     fullWidth
-                                    id="accountId"
+                                    id="textColor"
                                     label="ラベルの文字色"
                                     name="textColor"
                                     type="color"
