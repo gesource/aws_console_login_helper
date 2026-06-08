@@ -7,7 +7,7 @@ export default defineConfig({
   manifest: {
     name: 'AWS Management Console Login Helper',
     description: 'この拡張機能はAWS Management Consoleのログイン情報の入力を支援します',
-    version: '0.0.2',
+    version: '0.0.3',
     manifest_version: 3,
     permissions: [
       'tabs',
