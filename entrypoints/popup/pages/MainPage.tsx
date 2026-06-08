@@ -1,6 +1,9 @@
 import React, {useEffect, useRef} from "react";
 import {useNavigate} from "react-router-dom";
-import Account from "../models/Account";
+import type {Account} from "@/utils/account";
+import {sendLogin} from "@/utils/messaging";
+import {useAccounts} from "../hooks/useAccounts";
+import {useSnackbar} from "../hooks/useSnackbar";
 import {Fab, IconButton, List, ListItem, ListItemButton, ListItemText, Stack, TextField} from "@mui/material";
 import Box from "@mui/material/Box";
 import SearchIcon from '@mui/icons-material/Search';
@@ -10,17 +13,14 @@ import EditIcon from '@mui/icons-material/Edit';
 import HomeIcon from '@mui/icons-material/Home';
 import SettingsIcon from '@mui/icons-material/Settings';
 
-interface MainPageProps {
-    accounts: Account[];
-    setAccounts: (accounts: Account[]) => void;
-}
-
-function MainPage(accounts: MainPageProps) {
+function MainPage() {
     const navigate = useNavigate();
+    const {accounts, setAccounts} = useAccounts();
+    const {showMessage, snackbar} = useSnackbar();
     // 検索キーワード
     const searchKeyword = useRef<HTMLInputElement>(null);
     // 表示するアカウント一覧
-    const [displayAccounts, setDisplayAccounts] = React.useState(accounts.accounts);
+    const [displayAccounts, setDisplayAccounts] = React.useState<Account[]>(accounts);
 
     /**
      * 新規追加ページを開く
@@ -58,7 +58,7 @@ function MainPage(accounts: MainPageProps) {
 
     const searchAccounts = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        search(accounts.accounts);
+        search(accounts);
     }
 
     /**
@@ -74,8 +74,8 @@ function MainPage(accounts: MainPageProps) {
      * @param id    削除するアカウントのアカウントID
      */
     const deleteAccount = (id: string) => {
-        const newAccounts = accounts.accounts.filter((account) => account.id !== id);
-        accounts.setAccounts(newAccounts);
+        const newAccounts = accounts.filter((account) => account.id !== id);
+        setAccounts(newAccounts);
     };
 
     /**
@@ -83,25 +83,32 @@ function MainPage(accounts: MainPageProps) {
      * @param id    アカウントID
      */
     const selectAccount = (id: string) => {
-        const account = accounts.accounts.find((account) => account.id === id);
+        const account = accounts.find((account) => account.id === id);
         if (account === undefined) {
             return;
         }
         chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-            chrome.tabs.sendMessage(tabs[0].id!, {account: account})
-                .then((response) => {
-                    console.log(response);
+            const tabId = tabs[0]?.id;
+            if (tabId === undefined) {
+                showMessage("アクティブなタブが見つかりませんでした", "error");
+                return;
+            }
+            sendLogin(tabId, account)
+                .then((result) => {
+                    if (!result.ok) {
+                        showMessage(`入力に失敗しました: ${result.reason}`, "error");
+                    }
                 })
-                .catch((error) => {
-                    console.error(error);
+                .catch(() => {
+                    showMessage("このページには入力できませんでした", "error");
                 });
         });
     };
 
     // アカウント一覧が更新されたら検索結果を更新する
     useEffect(() => {
-        search(accounts.accounts);
-    }, [accounts.accounts]);
+        search(accounts);
+    }, [accounts]);
 
     return (
         <>
@@ -184,6 +191,7 @@ function MainPage(accounts: MainPageProps) {
                     <AddIcon/>
                 </Fab>
             </Box>
+            {snackbar}
         </>
     );
 }

@@ -16,17 +16,16 @@ import DownloadIcon from '@mui/icons-material/Download';
 import UploadIcon from '@mui/icons-material/Upload';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import React from "react";
-import Account from "../models/Account.ts";
+import type {Account} from "@/utils/account";
+import {useAccounts} from "../hooks/useAccounts";
+import {useSnackbar} from "../hooks/useSnackbar";
 import Box from "@mui/material/Box";
 import {useNavigate} from "react-router-dom";
 
-interface SettingPageProps {
-    accounts: Account[];
-    setAccounts: (accounts: Account[]) => void;
-}
-
-function SettingPage(props: SettingPageProps) {
+function SettingPage() {
     const navigate = useNavigate();
+    const {accounts, setAccounts} = useAccounts();
+    const {showMessage, snackbar} = useSnackbar();
     const importSettingsRef = React.useRef<HTMLInputElement>(null);
     const [openImportDialog, setOpenImportDialog] = React.useState(false);
 
@@ -37,17 +36,14 @@ function SettingPage(props: SettingPageProps) {
     /**
      * 設定をクリップボードにコピーする
      */
-    const exportSettings = () => {
-        navigator.permissions.query({name: "clipboard-write" as PermissionName})
-            .then(result => {
-                if (result.state === "granted" || result.state === "prompt") {
-                    const settings = JSON.stringify(props.accounts);
-                    navigator.clipboard.writeText(settings).then(() => {
-                            alert("設定をクリップボードにコピーしました。");
-                        }
-                    )
-                }
-            })
+    const exportSettings = async () => {
+        try {
+            const settings = JSON.stringify(accounts);
+            await navigator.clipboard.writeText(settings);
+            showMessage("設定をクリップボードにコピーしました", "success");
+        } catch {
+            showMessage("クリップボードへのコピーに失敗しました", "error");
+        }
     }
 
     /**
@@ -58,12 +54,12 @@ function SettingPage(props: SettingPageProps) {
             return;
         }
         try {
-            const json = JSON.parse(importSettingsRef.current.value);
-            const accounts = json as Account[];
-            props.setAccounts(accounts);
-            alert("インポートしました。")
-        } catch (e) {
-            alert(e);
+            const accounts = JSON.parse(importSettingsRef.current.value) as Account[];
+            setAccounts(accounts);
+            setOpenImportDialog(false);
+            showMessage("インポートしました", "success");
+        } catch {
+            showMessage("JSONの形式が正しくありません", "error");
         }
     }
 
@@ -115,7 +111,7 @@ function SettingPage(props: SettingPageProps) {
                             </Button>
                         }
                     >
-                        <ListItemText primary="エクスポート" secondary="設定をコピーします。"/>
+                        <ListItemText primary="エクスポート" secondary="設定をコピーします。パスワードは平文で出力されます。"/>
                     </ListItem>
                 </List>
             </Box>
@@ -142,6 +138,7 @@ function SettingPage(props: SettingPageProps) {
                     </Button>
                 </DialogActions>
             </Dialog>
+            {snackbar}
         </>
     );
 }

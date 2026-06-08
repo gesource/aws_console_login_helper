@@ -1,4 +1,5 @@
-import Account from './popup/models/Account';
+import type {Account} from '@/utils/account';
+import {type LoginResult, onLogin} from '@/utils/messaging';
 import awsConsolePage from './content/awsConsolePage';
 
 /**
@@ -6,7 +7,7 @@ import awsConsolePage from './content/awsConsolePage';
  * @param input 入力欄
  * @param value 値
  */
-const inputCode = async (input: HTMLInputElement, value: string) => {
+const inputCode = (input: HTMLInputElement, value: string) => {
     input.value = value;
     input.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
     input.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
@@ -17,16 +18,16 @@ const inputCode = async (input: HTMLInputElement, value: string) => {
  * "IAMユーザー"を選択しアカウントIDを入力する
  * @param account
  */
-const signInPage = async (account: Account) => {
-    const iamInput = document.getElementById("iam_user_radio_button") as HTMLInputElement;
+const signInPage = (account: Account) => {
+    const iamInput = document.getElementById("iam_user_radio_button") as HTMLInputElement | null;
     if (iamInput) {
         iamInput.checked = true;
         iamInput.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
     }
 
-    const resolvingInput = document.getElementById("resolving_input") as HTMLInputElement;
+    const resolvingInput = document.getElementById("resolving_input") as HTMLInputElement | null;
     if (resolvingInput) {
-        await inputCode(resolvingInput, account.id);
+        inputCode(resolvingInput, account.id);
     }
 };
 
@@ -35,15 +36,15 @@ const signInPage = async (account: Account) => {
  * アカウントID・ユーザー名・パスワードを入力する
  * @param account
  */
-const loginOAuthPage = async (account: Account) => {
+const loginOAuthPage = (account: Account) => {
     const accountInput = document.getElementById('account') as HTMLInputElement | null;
-    if (accountInput) await inputCode(accountInput, account.id);
+    if (accountInput) inputCode(accountInput, account.id);
 
     const usernameInput = document.getElementById('username') as HTMLInputElement | null;
-    if (usernameInput) await inputCode(usernameInput, account.userName);
+    if (usernameInput) inputCode(usernameInput, account.userName);
 
     const passwordInput = document.getElementsByName('password')[0] as HTMLInputElement | null;
-    if (passwordInput) await inputCode(passwordInput, account.password);
+    if (passwordInput) inputCode(passwordInput, account.password);
 };
 
 // コンテンツスクリプトとして定義
@@ -61,20 +62,20 @@ export default defineContentScript({
             awsConsolePage();
         }
 
-        chrome.runtime.onMessage.addListener(async (message: { account: Account }) => {
+        onLogin(async (account): Promise<LoginResult> => {
             const url = window.location.href;
             const signInUrl = "https://signin.aws.amazon.com/signin";
             const oauthUrl = "signin.aws.amazon.com/oauth";
 
             if (url.startsWith(signInUrl)) {
-                await signInPage(message.account);
+                signInPage(account);
+                return { ok: true };
             } else if (url.includes(oauthUrl)) {
-                await loginOAuthPage(message.account);
-            } else {
-                alert("[不具合] URLにマッチしませんでした。URLを開発者にお知らせください。");
+                loginOAuthPage(account);
+                return { ok: true };
             }
-
-            return true;
+            console.warn("[AWS Console Login Helper] URLにマッチしませんでした:", url);
+            return { ok: false, reason: "サインインページではありません" };
         });
     },
 });
